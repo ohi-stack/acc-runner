@@ -4,34 +4,48 @@ ACC Runner is the controlled execution-runtime module for the canonical ACC™ p
 
 ## Canonical role
 
-ACC Runner processes approved tasks and workflow steps after authority and policy checks have been satisfied.
+ACC Runner processes approved Work Orders, tasks, and workflow steps after authority and policy checks have been satisfied.
 
-It may execute work delegated through:
+ACC V2 adds a provider-independent work hierarchy above execution:
 
-- ACC workflows
-- approved agent tasks
-- adapters and tools
-- governed OMOS execution requests
-- Oru’Valen-prepared actions after required authorization
+```text
+Project
+→ Responsibility
+→ Work Order
+→ Authorization / Approval
+→ ACC Runner or approved external provider
+→ Verification
+→ Audit
+```
 
-ACC Runner does not self-authorize privileged work.
+Runner output must preserve `project_id`, `responsibility_id` when present, `work_order_id`, provider identity, executor identity, approval state, execution state, verification evidence, and resulting artifacts.
+
+## Provider boundary
+
+ACC Runner is the canonical internal executable provider: `acc-runner`.
+
+External provider identifiers may be attached to planned Work Orders, but Runner must not dispatch a provider unless its ACC adapter is explicitly executable and authorized. Unknown identifiers fail closed.
+
+Current compatibility identifiers include `openai-agents`, `openai-codex`, `chatgpt-work`, `external-mcp`, `omos`, `human`, and reserved `openai-dot`.
+
+`openai-dot` is non-executable until a supported developer integration is implemented, verified, repeatable, and deployed.
 
 ## Execution boundary
 
 ```text
 Authorized Human Judgment
 → Oru’Valen / OMOS decision support
-→ ACC
+→ ACC Work Order
 → OCP authorization
 → OEG governed execution
-→ ACC Runner / adapters / agents
+→ ACC Runner / approved adapters / agents
 → verification + audit evidence
 ```
 
-Runner output must remain attributable, reviewable, and auditable. Retries, failures, and state transitions must not bypass policy or approval controls.
+ACC Runner does not self-authorize privileged work. Retries, failures, provider changes, and state transitions must not bypass policy or approval controls.
 
 ## Source of truth
 
-The canonical ACC platform repository is `ohi-stack/acc`. This repository is an execution module and must remain compatible with the contracts and authority model defined there.
+The canonical ACC platform repository is `ohi-stack/acc`. Shared work-order and execution-provider contracts are synchronized through `ohi-stack/acc-core`.
 
-Synchronized to ACC platform `v1.3.0` architecture on September 16, 2026.
+**Synchronization target:** ACC `2.0.0-alpha.1` delegation foundation. Production state remains tied to separately verified deployment evidence.
